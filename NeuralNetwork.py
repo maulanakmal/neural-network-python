@@ -56,7 +56,7 @@ class NeuralNetwork:
     def show(self):
         for i, x in enumerate(self.weights):
             print('----------------------------------------------')
-            print('weight layer ' +str(i) + ' to layer ' + str(i+1))
+            print('weight layer ' +str(i) + ' to layer ' + str(i+1) + '. dim = '+ str(x.shape))
             print(x)
             print('----------------------------------------------')
 
