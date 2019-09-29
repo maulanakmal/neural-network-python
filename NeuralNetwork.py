@@ -2,7 +2,8 @@ import math
 import numpy as np
 
 class NeuralNetwork: 
-    def __init__(self, number_of_inputs):
+    def __init__(self, number_of_inputs, learning_rate):
+        self.learning_rate = learning_rate
         self.number_of_units_at_layer = []
         # weight[i] -> weight from layer i to layer i+1
         self.weights = []
@@ -60,7 +61,6 @@ class NeuralNetwork:
 
         self.parray("error", s)
 
-        
         #find gradient
         delta = [None for _ in range(len(self.number_of_units_at_layer))]
         for l in range(len(self.number_of_units_at_layer) - 2):
@@ -72,7 +72,15 @@ class NeuralNetwork:
 
         self.parray("grad", delta)
 
+        #update weight
+        for l in range(len(self.number_of_units_at_layer) - 1):
+            print(self.weights[l].shape)
+            print(delta[l].shape)
+            print(delta[l])
+            print(delta[l]*self.learning_rate)
+            self.weights[l] = self.weights[l] - self.learning_rate * delta[l]
 
+        self.parray("weight", self.weights)
 
     def show(self):
         for i, x in enumerate(self.weights):
@@ -92,7 +100,7 @@ class NeuralNetwork:
 
 
 def main():
-    nn = NeuralNetwork(3)
+    nn = NeuralNetwork(3, 0.01)
     nn.add_layer(3)
     nn.add_layer(2)
     nn.finish()
