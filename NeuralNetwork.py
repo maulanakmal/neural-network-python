@@ -31,10 +31,11 @@ class NeuralNetwork:
     def perform_for_single_input(self, X, y):
         if len(X) != self.number_of_inputs:
             print('input number doesn\'t match')
+
         #feed forward
         a = [None for _ in range(len(self.number_of_units_at_layer))]
 
-        a[0] = np.array([X.T]).T
+        a[0] = np.array([X]).T
 
         vfunc = np.vectorize(self.g)
         for i in range(1, len(self.number_of_units_at_layer)):
@@ -56,7 +57,6 @@ class NeuralNetwork:
             s[l] = self.weights[l].T.dot(s[l+1][:-1,:])
             s[l] = np.multiply(s[l], a[l])
             s[l] = np.multiply(s[l], 1 - a[l])
-
 
         self.parray(s)
 
