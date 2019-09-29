@@ -1,8 +1,7 @@
 import math
 import numpy as np
 
-class NeuralNetwork:
-
+class NeuralNetwork: 
     def __init__(self, number_of_inputs):
         self.number_of_units_at_layer = []
         # weight[i] -> weight from layer i to layer i+1
@@ -29,10 +28,6 @@ class NeuralNetwork:
     def g(self, x): 
         return 1 / (1 + math.exp(-x))
     
-    # derivation of activation function
-    def g_der(x):
-        return g(x) * (1 - g(x));
-
     def perform_for_single_input(self, X, y):
         if len(X) != self.number_of_inputs:
             print('input number doesn\'t match')
@@ -41,11 +36,10 @@ class NeuralNetwork:
 
         a[0] = np.array([X.T]).T
 
+        vfunc = np.vectorize(self.g)
         for i in range(1, len(self.number_of_units_at_layer)):
             a[i-1] = np.append(a[i-1], [[1]], axis=0)
             a[i] = self.weights[i-1].dot(a[i-1])
-
-            vfunc = np.vectorize(self.g)
             a[i] = vfunc(a[i])
 
         #backprop
@@ -53,6 +47,17 @@ class NeuralNetwork:
         current_layer = len(self.number_of_units_at_layer) - 1
 
         s[current_layer] = a[current_layer] - y
+
+        s[current_layer - 1] = self.weights[current_layer-1].T.dot(s[current_layer])
+        s[current_layer - 1] = np.multiply(s[current_layer-1], a[current_layer - 1])
+        s[current_layer - 1] = np.multiply(s[current_layer-1], 1 - a[current_layer - 1])
+
+        for l in reversed(range(1, len(self.number_of_units_at_layer) - 2)):
+            s[l] = self.weights[l].T.dot(s[l+1][:-1,:])
+            s[l] = np.multiply(s[l], a[l])
+            s[l] = np.multiply(s[l], 1 - a[l])
+
+
         self.parray(s)
 
         
