@@ -29,7 +29,7 @@ class NeuralNetwork:
     def g(self, x): 
         return 1 / (1 + math.exp(-x))
     
-    def perform_for_single_input(self, X, y):
+    def get_gradient_for_single_input(self, X, y):
         if len(X) != self.number_of_inputs:
             print('input number doesn\'t match')
 
@@ -59,8 +59,6 @@ class NeuralNetwork:
             s[l] = np.multiply(s[l], a[l])
             s[l] = np.multiply(s[l], 1 - a[l])
 
-        self.parray("error", s)
-
         #find gradient
         delta = [None for _ in range(len(self.number_of_units_at_layer))]
         for l in range(len(self.number_of_units_at_layer) - 2):
@@ -70,17 +68,47 @@ class NeuralNetwork:
         delta[current_layer-1] = np.zeros((self.number_of_units_at_layer[current_layer], self.number_of_units_at_layer[current_layer-1]+1))
         delta[current_layer-1] += s[current_layer].dot(a[current_layer-1].T)
 
-        self.parray("grad", delta)
+        return delta
 
-        #update weight
-        for l in range(len(self.number_of_units_at_layer) - 1):
-            print(self.weights[l].shape)
-            print(delta[l].shape)
-            print(delta[l])
-            print(delta[l]*self.learning_rate)
-            self.weights[l] = self.weights[l] - self.learning_rate * delta[l]
+    def mini_batch_gradient_descent(self, X, Y, batch_size, epochs):
+        batches = self.generate_batches(X.shape[0], batch_size)
+        print('batches', batches)
 
-        self.parray("weight", self.weights)
+        for epoch in range(epochs):
+            print('epoch '+ str(epoch))
+            for batch in batches:
+                delta = []
+                for i in range(len(self.number_of_units_at_layer) - 1):
+                    delta.append(np.zeros((self.number_of_units_at_layer[i+1], self.number_of_units_at_layer[i] + 1)))
+
+                for i in batch:
+                    delta_i = self.get_gradient_for_single_input(X[i], Y[i])
+                    for j in range(len(self.number_of_units_at_layer) - 1):
+                        delta[j] += delta_i[j]
+
+                for l in range(len(self.number_of_units_at_layer) - 1):
+                    for i in range(self.number_of_units_at_layer[l]+1):
+                        for j in range(self.number_of_units_at_layer[l+1]):
+                            delta[l][j][i] /= batch_size
+                            delta[l][j][i] += self.weights[l][j][i] * self.learning_rate
+
+                #update weights
+                for l in range(len(self.number_of_units_at_layer) - 1):
+                    self.weights[l] -= delta[l] * self.learning_rate
+
+                self.parray("weight", self.weights)
+
+
+
+    def generate_batches(self, data_size, batch_size):
+        batches = []
+        i = 0
+        while i < data_size:
+            batches.append([_ for _ in range(i, min(i+batch_size, data_size))])
+            i += batch_size
+        return batches
+
+            
 
     def show(self):
         for i, x in enumerate(self.weights):
@@ -107,8 +135,10 @@ def main():
 
     nn.show()
     
-    X = np.array([1,2,3])
-    nn.perform_for_single_input(X,1)
+    X = np.array([[1,2,3], [4,5,6], [7,8,9], [10,11,12]])
+    Y = np.array([1,2,3,4,5])
+
+    nn.mini_batch_gradient_descent(X,Y,2,4)
 
 
 if __name__ == "__main__":
