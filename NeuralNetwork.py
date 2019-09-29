@@ -1,24 +1,26 @@
 import math
-import random
 import numpy as np
 
 class NeuralNetwork:
+    number_of_units_at_layer = []
+    # weight[i] -> weight from layer i to layer i+1
     weights = []
-    number_of_layer = 0
-    units = []
+
     def __init__(self, number_of_inputs):
         self.number_of_inputs = number_of_inputs
-        self.weights.append(np.random.rand(1,1)) # dummy
-        self.units.append(number_of_inputs)
+        self.prev_number_of_output = number_of_inputs
+        self.number_of_units_at_layer.append(number_of_inputs)
 
     def add_layer(self, number_of_nodes):
-        self.weights.append(np.random.rand(self.number_of_inputs, number_of_nodes + 1))
-        self.number_of_inputs = number_of_nodes
-        self.units.append(number_of_nodes)
-        self.number_of_layer += 1
+        weight = np.random.rand(self.prev_number_of_inputs + 1, number_of_nodes)
+        self.weights.append(weight)
 
+        self.prev_number_of_inputs = number_of_nodes
+        self.number_of_units_at_layer.append(number_of_nodes)
+
+    # add output layer
     def finish():
-        self.weights.append(np.random.rand(self.number_of_inputs, 1))
+        self.weights.append(np.random.rand(self.number_of_inputs + 1, 1))
 
     # activation function
     def g(x): 
@@ -28,16 +30,14 @@ class NeuralNetwork:
     def g_der(x):
         return g(x) * (1 - g(x));
 
-    def perform_for_single_input(X):
-        layers = [] #output of each layer
-        layers.append(X) # X = vector of number_of_inputs input
+    def perform_for_single_input(X, y):
+        #feed forward
+        a = [None for _ in range(len(number_of_units_at_layer))]
 
-        # feed forward
-        for i in range(1, self.number_of_layer + 1):
-            layers.append([0 for _ in range(units[i])])
-            for j in range(units[i]):
-                for k in range(len(a[i-1])):
-                    layers[i][j] += a[i-1][k] * weights[i][k][j]
-
-        # back prob
+        a[0] = X
+        for i in range(1, len(number_of_units_at_layer)):
+            a[i] = np.zeros((number_of_units_at_layer[i]))
+            for unit in range(number_of_units_at_layer[i]):
+                for input in range(number_of_units_at_layer[i-1]):
+                    a[i][unit] += a[i-1][input] * weights[i][input][unit] + weight[i][-1:][unit]
 
