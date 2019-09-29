@@ -44,12 +44,15 @@ class NeuralNetwork:
         for i in range(1, len(self.number_of_units_at_layer)):
             a[i-1] = np.append(a[i-1], [[1]], axis=0)
             a[i] = self.weights[i-1].dot(a[i-1])
+            a[i] = self.g(a[i])
 
         #backprop
         s = [None for _ in range (len(self.number_of_units_at_layer))]
         current_layer = len(self.number_of_units_at_layer) - 1
 
         s[current_layer] = a[current_layer] - y
+        self.parray(s)
+
         
 
 
@@ -57,6 +60,12 @@ class NeuralNetwork:
         for i, x in enumerate(self.weights):
             print('----------------------------------------------')
             print('weight layer ' +str(i) + ' to layer ' + str(i+1) + '. dim = '+ str(x.shape))
+            print(x)
+            print('----------------------------------------------')
+            
+    def parray(self, array):
+        for i, x in enumerate(array):
+            print('----------------------------------------------')
             print(x)
             print('----------------------------------------------')
 
