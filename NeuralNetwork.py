@@ -58,9 +58,20 @@ class NeuralNetwork:
             s[l] = np.multiply(s[l], a[l])
             s[l] = np.multiply(s[l], 1 - a[l])
 
-        self.parray(s)
+        self.parray("error", s)
 
         
+        #find gradient
+        delta = [None for _ in range(len(self.number_of_units_at_layer))]
+        for l in range(len(self.number_of_units_at_layer) - 2):
+            delta[l] = np.zeros((self.number_of_units_at_layer[l+1], self.number_of_units_at_layer[l]+1))
+            delta[l] += s[l+1][:-1,:].dot(a[l].T)
+
+        delta[current_layer-1] = np.zeros((self.number_of_units_at_layer[current_layer], self.number_of_units_at_layer[current_layer-1]+1))
+        delta[current_layer-1] += s[current_layer].dot(a[current_layer-1].T)
+
+        self.parray("grad", delta)
+
 
 
     def show(self):
@@ -70,11 +81,14 @@ class NeuralNetwork:
             print(x)
             print('----------------------------------------------')
             
-    def parray(self, array):
+    def parray(self, desc, array):
+        print('')
+        print(desc)
         for i, x in enumerate(array):
             print('----------------------------------------------')
             print(x)
             print('----------------------------------------------')
+        print('')
 
 
 def main():
